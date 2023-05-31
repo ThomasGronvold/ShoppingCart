@@ -5,7 +5,6 @@ namespace ShoppingCart;
 public class ProductArray
 {
     private Product[] _products;
-
     public ProductArray(int size)
     {
         _products = new Product[size];
