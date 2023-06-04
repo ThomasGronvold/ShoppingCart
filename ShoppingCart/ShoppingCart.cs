@@ -1,52 +1,84 @@
-﻿namespace ShoppingCart;
+﻿using System.Runtime.Intrinsics.X86;
+
+namespace ShoppingCart;
 
 public class ShoppingCart
 {
     private List<CartItem> _cart;
-    private int totalPrice;
+    private List<Product> _allProducts;
+    private int _totalPrice;
+
     public ShoppingCart()
     {
         _cart = new List<CartItem>();
+        _allProducts = new List<Product>();
     }
-    public void AddToCart(CartItem product)
+
+    public void AddToCart(string productName, int quantity)
     {
-        bool itemExcistsInArray = false;
-        foreach (var cartProduct in _cart)
+        var cartItem = SearchCartItemsForProductName(productName);
+        var product = DoesProductExist(productName);
+
+        if (product != null)
         {
-            if (cartProduct.GetCartProductName() == product.GetCartProductName())
+            if (cartItem != null)
             {
-                cartProduct.IncreaseQuantity(product.GetCartProductQuantity());
-                itemExcistsInArray = true;
-                break;
+                cartItem.IncreaseQuantity(quantity);
+                _totalPrice += product.IncreaseTotalPrice(quantity);
+            }
+            else
+            {
+                _cart.Add(new CartItem(productName, quantity));
+                _totalPrice += product.IncreaseTotalPrice(quantity);
             }
         }
-        if (!itemExcistsInArray)
+    }
+
+    public void AddProductToList(string productName, int price)
+    {
+        var doesProductExist = DoesProductExist(productName);
+
+        if (doesProductExist == null)
         {
-            _cart.Add(product);
+            _allProducts.Add(new Product(productName, price));
         }
     }
-    public int FindProductPrice(string productName, ProductArray productArray)
+
+    private Product? DoesProductExist(string productName)
     {
-        /* Returns the ProductArray through a method because it's set to Private */
-        var array = productArray.GetProductArray();
-        /* Finds the first product with the same name as the name parameter */
-        var productToReturn = array.First(product => product.GetProductName() == productName);
-        return productToReturn.GetProductPrice();
+        /* Checks if the parameter form the User (string productName) is an actual product in the "_allProducts" list.
+        If it is not an actial product the method will return null. */
+        return _allProducts.FirstOrDefault(product => product.CheckIfProductExist(productName));
     }
-    public void ShowCart(ProductArray productArray)
+
+    private CartItem? SearchCartItemsForProductName(string productName)
     {
-        foreach (var item in _cart)
+        /* Finds out if the product the user wants to add (string productName) is already an item inside the "_cart" list.
+        If it is not a match the method will return null. */
+        return _cart.FirstOrDefault(item => item.checkIfItemExist(productName));
+    }
+
+    public void ShowCart()
+    {
+        if (_cart.Count == 0)
         {
-            string productName = item.GetCartProductName();
-            int productQuantity = item.GetCartProductQuantity();
-            int productPrice = FindProductPrice(productName, productArray);
-
-            Console.WriteLine($"Product Name: {productName} " +
-                              $"- Product Quantity: {productQuantity} " +
-                              $"- Product Price: {productPrice}.");
-            totalPrice += productPrice * productQuantity;
-
+            Console.WriteLine("Your shopping cart is empty.");
         }
-        Console.WriteLine($"Total Price: {totalPrice}");
+        else
+        {
+            foreach (var cartItem in _cart)
+            {
+                cartItem.WriteItems(_allProducts);
+            }
+            Console.WriteLine($"Total price for all items in cart is: {_totalPrice}.");
+        }
+    }
+
+    public void ShowProducts()
+    {
+        foreach (var product in _allProducts)
+        {
+            product.WriteProducts();
+        }
     }
 }
