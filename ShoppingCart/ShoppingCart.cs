@@ -16,21 +16,19 @@ public class ShoppingCart
 
     public void AddToCart(string productName, int quantity)
     {
-        var cartItem = SearchCartItemsForProductName(productName);
-        var product = DoesProductExist(productName);
 
-        if (product != null)
+        var product = DoesProductExist(productName);
+        if (product == null) return;
+        var cartItem = SearchCartItemsForProductName(productName);
+        if (cartItem != null)
         {
-            if (cartItem != null)
-            {
-                cartItem.IncreaseQuantity(quantity);
-                _totalPrice += product.IncreaseTotalPrice(quantity);
-            }
-            else
-            {
-                _cart.Add(new CartItem(productName, quantity));
-                _totalPrice += product.IncreaseTotalPrice(quantity);
-            }
+            cartItem.IncreaseQuantity(quantity);
+            _totalPrice += product.IncreaseTotalPrice(quantity);
+        }
+        else
+        {
+            _cart.Add(new CartItem(productName, quantity));
+            _totalPrice += product.IncreaseTotalPrice(quantity);
         }
     }
 

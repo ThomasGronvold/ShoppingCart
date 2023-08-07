@@ -13,6 +13,8 @@
             shoppingCart.ShowProducts(); /* Uncomment to see all the products and their cost */
 
             shoppingCart.AddToCart("Salmon", 3);
+            //shoppingCart.AddToCart("Salmon", 3);
+            //shoppingCart.AddToCart("Salmon", 3);
             shoppingCart.AddToCart("Bacon", 2);
             shoppingCart.AddToCart("Corn", 9);
 
